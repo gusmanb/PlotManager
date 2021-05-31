@@ -203,7 +203,7 @@ namespace PlotManager
             this.nudThreads.Size = new System.Drawing.Size(57, 23);
             this.nudThreads.TabIndex = 10;
             this.nudThreads.Value = new decimal(new int[] {
-            2,
+            4,
             0,
             0,
             0});
@@ -234,7 +234,7 @@ namespace PlotManager
             this.nudBuffer.Size = new System.Drawing.Size(57, 23);
             this.nudBuffer.TabIndex = 8;
             this.nudBuffer.Value = new decimal(new int[] {
-            2048,
+            3400,
             0,
             0,
             0});
