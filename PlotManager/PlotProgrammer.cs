@@ -234,10 +234,9 @@ namespace PlotManager
 
             List<string> finalLines = new List<string>();
 
-            int skip = Math.Max(0, lines.Length - 100);
-            int take = Math.Min(lines.Length, 99);
+            int skip = Math.Max(0, lines.Length - 99);
 
-            finalLines.AddRange(lines.Skip(skip).Take(take));
+            finalLines.AddRange(lines.Skip(skip));
             finalLines.Add(newLog);
 
             Log = string.Join("\r\n", finalLines);

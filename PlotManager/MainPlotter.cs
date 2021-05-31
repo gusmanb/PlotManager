@@ -327,5 +327,17 @@ namespace PlotManager
 
             Plotter.ConfigureChiaPath(path);
         }
+
+        private void bttnRemoveTemp_Click(object sender, EventArgs e)
+        {
+            if (lstTemps.SelectedIndex > -1)
+                lstTemps.Items.Remove(lstTemps.SelectedItem);
+        }
+
+        private void btnRemoveOutput_Click(object sender, EventArgs e)
+        {
+            if (lstOuts.SelectedIndex > -1)
+                lstOuts.Items.Remove(lstOuts.SelectedItem);
+        }
     }
 }

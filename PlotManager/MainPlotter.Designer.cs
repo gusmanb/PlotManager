@@ -108,7 +108,7 @@ namespace PlotManager
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(223, 24);
+            this.label3.Location = new System.Drawing.Point(314, 24);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(84, 15);
             this.label3.TabIndex = 6;
@@ -132,6 +132,7 @@ namespace PlotManager
             this.bttnRemoveTemp.TabIndex = 8;
             this.bttnRemoveTemp.Text = "-";
             this.bttnRemoveTemp.UseVisualStyleBackColor = true;
+            this.bttnRemoveTemp.Click += new System.EventHandler(this.bttnRemoveTemp_Click);
             // 
             // btnRemoveOutput
             // 
@@ -141,6 +142,7 @@ namespace PlotManager
             this.btnRemoveOutput.TabIndex = 10;
             this.btnRemoveOutput.Text = "-";
             this.btnRemoveOutput.UseVisualStyleBackColor = true;
+            this.btnRemoveOutput.Click += new System.EventHandler(this.btnRemoveOutput_Click);
             // 
             // btnAddOutput
             // 
