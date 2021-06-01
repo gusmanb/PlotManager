@@ -171,8 +171,15 @@ namespace PlotManager
 
                         var selectedOutput = _OutputFolders
                             .Where(f => GetFreeDisc(f) >= plotSizes[_KSize])
-                            .Select(f => new { Folder = f, Running = runningPlots.Count(rp => rp.Value.OutputFolder == f) })
-                            .OrderBy(g => g.Running).FirstOrDefault();
+                            .Select(f => new 
+                            { 
+                                Folder = f, 
+                                Running = runningPlots.Count(rp => rp.Value.OutputFolder == f), 
+                                RunningPhaseOne = runningPlots.Count(rp => rp.Value.OutputFolder == f && rp.Value.CurrentPhase == 1) 
+                            })
+                            .OrderBy(g => g.Running)
+                            .ThenBy(g => g.RunningPhaseOne)
+                            .FirstOrDefault();
 
                         if (selectedOutput == null)
                         {
