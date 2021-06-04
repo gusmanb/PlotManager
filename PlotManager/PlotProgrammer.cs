@@ -11,6 +11,8 @@ namespace PlotManager
 {
     public static class PlotProgrammer
     {
+        static double tempFactor = 249;
+
         static readonly Dictionary<int, long> plotSizes = new Dictionary<int, long> {
             { 25, 600 * 1024 * 1024 },
             { 32, 102L * 1024L * 1024L * 1024L  },
@@ -27,15 +29,14 @@ namespace PlotManager
         static int _KSize;
         static int _BufferSize;
         static int _ThreadCount;
-        static string[] _TempFolders;
+        static TemporalFolder[] _TempFolders;
         static string[] _OutputFolders;
         static int _MinInterval;
         static int _MaxPhaseOne;
-        static int _MaxPerTemp;
 
         public static bool Running { get; set; }
 
-        public static bool Start(int KSize, int BufferSize, int ThreadCount, string[] TempFolders, string[] OutputFolders, int MinInterval, int MaxPhaseOne, int MaxPerTemp)
+        public static bool Start(int KSize, int BufferSize, int ThreadCount, TemporalFolder[] TempFolders, string[] OutputFolders, int MinInterval, int MaxPhaseOne)
         {
             if (cancelSrc != null)
             {
@@ -50,7 +51,6 @@ namespace PlotManager
             _OutputFolders = OutputFolders;
             _MinInterval = MinInterval;
             _MaxPhaseOne = MaxPhaseOne;
-            _MaxPerTemp = MaxPerTemp;
 
             cancelSrc = new CancellationTokenSource();
             ExecuteProgrammer();
@@ -150,17 +150,28 @@ namespace PlotManager
 
                         cancelSrc.Token.ThrowIfCancellationRequested();
 
-                        string selectedTemp = null;
+                        TemporalFolder selectedTemp = null;
 
                         while (selectedTemp == null)
                         {
                             var grp = _TempFolders
-                            .Select(f => new { Folder = f, Running = runningPlots.Count(rp => rp.Value.TempFolder == f) })
-                            .OrderBy(g => g.Running).FirstOrDefault();
+                            .Select(f => new 
+                            { 
+                                Folder = f, 
+                                Running = runningPlots.Count(rp => rp.Value.TempFolder == f.Folder),
+                                RunningPhaseOne = runningPlots.Count(rp => rp.Value.TempFolder == f.Folder && rp.Value.CurrentPhase == 1),
+                                RunningUnderThree = runningPlots.Count(rp => rp.Value.TempFolder == f.Folder && rp.Value.CurrentPhase < 3),
+                                FreeSpots = f.MaxConcurrency - runningPlots.Count(rp => rp.Value.TempFolder == f.Folder),
+                                FreeSpace = GetFreeTemp(f.Folder)
+                            })
+                            .Where(g => g.FreeSpace >= plotSizes[_KSize] && g.FreeSpots > 0)
+                            .OrderBy(g => g.Running)
+                            .ThenBy(g => g.RunningPhaseOne)
+                            .FirstOrDefault();
 
-                            if (grp == null || grp.Running >= _MaxPerTemp)
+                            if (grp == null)
                             {
-                                AppendLog("Max files per temp exceeded, delaying plot start...");
+                                AppendLog("Temps too busy, delaying plot start...");
                                 await Task.Delay(5000, cancelSrc.Token);
                             }
                             else
@@ -174,11 +185,9 @@ namespace PlotManager
                             .Select(f => new 
                             { 
                                 Folder = f, 
-                                Running = runningPlots.Count(rp => rp.Value.OutputFolder == f), 
-                                RunningPhaseOne = runningPlots.Count(rp => rp.Value.OutputFolder == f && rp.Value.CurrentPhase == 1) 
+                                Running = runningPlots.Count(rp => rp.Value.OutputFolder == f)
                             })
                             .OrderBy(g => g.Running)
-                            .ThenBy(g => g.RunningPhaseOne)
                             .FirstOrDefault();
 
                         if (selectedOutput == null)
@@ -189,9 +198,9 @@ namespace PlotManager
 
                         cancelSrc.Token.ThrowIfCancellationRequested();
 
-                        AppendLog($"Starting plot in '{selectedTemp}' to '{selectedOutput.Folder}'...");
+                        AppendLog($"Starting plot in '{selectedTemp.Folder}' to '{selectedOutput.Folder}'...");
 
-                        Plotter pt = new Plotter(_KSize, _BufferSize, _ThreadCount, selectedTemp, selectedOutput.Folder);
+                        Plotter pt = new Plotter(_KSize, _BufferSize, _ThreadCount, selectedTemp.Folder, selectedOutput.Folder);
                         pt.PlotFinished += Pt_PlotFinished;
 
                         if (NewPlot != null)
@@ -217,6 +226,19 @@ namespace PlotManager
                 catch { }
 
             });
+        }
+
+        private static long GetFreeTemp(string Path)
+        {
+            var runningInUnderThree = runningPlots.Where(p => p.Value.TempFolder == Path && p.Value.CurrentPhase < 3).Count();
+            var runningOverThree = runningPlots.Where(p => p.Value.TempFolder == Path && p.Value.CurrentPhase >= 3).Count();
+
+            double scaledUnderThree = (runningInUnderThree * tempFactor) / 100.0;
+
+            long toRemove = (long)(runningOverThree * plotSizes[_KSize] + (scaledUnderThree * plotSizes[_KSize]));
+
+            var info = new DriveInfo(Path.Substring(0, 1));
+            return Math.Max(0, info.AvailableFreeSpace - toRemove);
         }
 
         private static long GetFreeDisc(string Path)
@@ -270,4 +292,6 @@ namespace PlotManager
             AppendLog("Plot is dead...");
         }
     }
+
+    
 }

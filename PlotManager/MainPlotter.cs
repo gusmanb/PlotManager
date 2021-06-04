@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -132,7 +133,7 @@ namespace PlotManager
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (lstTemps.Items.Count == 0 || lstOuts.Items.Count == 0)
+            if (lstTempFolders.Items.Count == 0 || lstOuts.Items.Count == 0)
             {
                 MessageBox.Show("You must at least specify one temp folder and one output folder");
                 return;
@@ -141,16 +142,27 @@ namespace PlotManager
             if (!PlotProgrammer.Start((int)nudKSize.Value,
                 (int)nudBuffer.Value,
                 (int)nudThreads.Value,
-                lstTemps.Items.Cast<string>().ToArray(),
+                lstTempFolders.Items.Cast<ListViewItem>().Select(lv => new TemporalFolder { Folder = lv.Text, MaxConcurrency = int.Parse(lv.SubItems[1].Text) }).ToArray(),
                 lstOuts.Items.Cast<string>().ToArray(),
                 (int)nudInterval.Value,
-                (int)nudPlotsPhase1.Value,
-                (int)nudPlotsTemp.Value))
+                (int)nudPlotsPhase1.Value))
             {
                 MessageBox.Show("Error starting plotter programmer!");
             }
             else
             {
+                var fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "plotter.cfg");
+                File.WriteAllText(fileName, JsonConvert.SerializeObject(new PlotterConfig
+                {
+                    KSize = (int)nudKSize.Value,
+                    Buffer = (int)nudBuffer.Value,
+                    Threads = (int)nudThreads.Value,
+                    TempFolders = lstTempFolders.Items.Cast<ListViewItem>().Select(lv => new TemporalFolder { Folder = lv.Text, MaxConcurrency = int.Parse(lv.SubItems[1].Text) }).ToArray(),
+                    OutputFolders = lstOuts.Items.Cast<string>().ToArray(),
+                    Interval = (int)nudInterval.Value,
+                    PlotsInPhaseOne = (int)nudPlotsPhase1.Value
+                }));
+
                 button1.Enabled = false;
                 button2.Enabled = true;
             }
@@ -158,12 +170,12 @@ namespace PlotManager
 
         private void btnAddTemp_Click(object sender, EventArgs e)
         {
-            using (FolderBrowserDialog fb = new FolderBrowserDialog())
+            using (TempSelector fb = new TempSelector())
             {
                 if (fb.ShowDialog() != DialogResult.OK)
                     return;
 
-                lstTemps.Items.Add(fb.SelectedPath);
+                lstTempFolders.Items.Add(new ListViewItem(new string[] { fb.Folder, fb.MaxConcurrency.ToString() }));
             }
         }
 
@@ -330,8 +342,8 @@ namespace PlotManager
 
         private void bttnRemoveTemp_Click(object sender, EventArgs e)
         {
-            if (lstTemps.SelectedIndex > -1)
-                lstTemps.Items.Remove(lstTemps.SelectedItem);
+            if (lstTempFolders.SelectedItems != null && lstTempFolders.SelectedItems.Count > 0)
+                lstTempFolders.Items.Remove(lstTempFolders.SelectedItems[0]);
         }
 
         private void btnRemoveOutput_Click(object sender, EventArgs e)

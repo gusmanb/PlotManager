@@ -29,7 +29,6 @@ namespace PlotManager
         /// </summary>
         private void InitializeComponent()
         {
-            this.lstTemps = new System.Windows.Forms.ListBox();
             this.lstOuts = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -38,6 +37,9 @@ namespace PlotManager
             this.btnRemoveOutput = new System.Windows.Forms.Button();
             this.btnAddOutput = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lstTempFolders = new System.Windows.Forms.ListView();
+            this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.nudThreads = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
@@ -46,8 +48,6 @@ namespace PlotManager
             this.nudKSize = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.nudPlotsTemp = new System.Windows.Forms.NumericUpDown();
-            this.label9 = new System.Windows.Forms.Label();
             this.nudPlotsPhase1 = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
             this.nudInterval = new System.Windows.Forms.NumericUpDown();
@@ -73,19 +73,9 @@ namespace PlotManager
             ((System.ComponentModel.ISupportInitialize)(this.nudBuffer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudKSize)).BeginInit();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPlotsTemp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPlotsPhase1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudInterval)).BeginInit();
             this.SuspendLayout();
-            // 
-            // lstTemps
-            // 
-            this.lstTemps.FormattingEnabled = true;
-            this.lstTemps.ItemHeight = 15;
-            this.lstTemps.Location = new System.Drawing.Point(6, 42);
-            this.lstTemps.Name = "lstTemps";
-            this.lstTemps.Size = new System.Drawing.Size(268, 139);
-            this.lstTemps.TabIndex = 0;
             // 
             // lstOuts
             // 
@@ -156,9 +146,9 @@ namespace PlotManager
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.lstTempFolders);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.btnRemoveOutput);
-            this.groupBox1.Controls.Add(this.lstTemps);
             this.groupBox1.Controls.Add(this.btnAddOutput);
             this.groupBox1.Controls.Add(this.lstOuts);
             this.groupBox1.Controls.Add(this.bttnRemoveTemp);
@@ -170,6 +160,30 @@ namespace PlotManager
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Folders";
+            // 
+            // lstTempFolders
+            // 
+            this.lstTempFolders.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader7,
+            this.columnHeader8});
+            this.lstTempFolders.FullRowSelect = true;
+            this.lstTempFolders.HideSelection = false;
+            this.lstTempFolders.Location = new System.Drawing.Point(6, 42);
+            this.lstTempFolders.Name = "lstTempFolders";
+            this.lstTempFolders.Size = new System.Drawing.Size(268, 139);
+            this.lstTempFolders.TabIndex = 11;
+            this.lstTempFolders.UseCompatibleStateImageBehavior = false;
+            this.lstTempFolders.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader7
+            // 
+            this.columnHeader7.Text = "Folder";
+            this.columnHeader7.Width = 160;
+            // 
+            // columnHeader8
+            // 
+            this.columnHeader8.Text = "Concurrency";
+            this.columnHeader8.Width = 80;
             // 
             // groupBox2
             // 
@@ -281,8 +295,6 @@ namespace PlotManager
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.nudPlotsTemp);
-            this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.nudPlotsPhase1);
             this.groupBox3.Controls.Add(this.label8);
             this.groupBox3.Controls.Add(this.nudInterval);
@@ -293,37 +305,6 @@ namespace PlotManager
             this.groupBox3.TabIndex = 13;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Programming";
-            // 
-            // nudPlotsTemp
-            // 
-            this.nudPlotsTemp.Location = new System.Drawing.Point(130, 80);
-            this.nudPlotsTemp.Maximum = new decimal(new int[] {
-            64,
-            0,
-            0,
-            0});
-            this.nudPlotsTemp.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nudPlotsTemp.Name = "nudPlotsTemp";
-            this.nudPlotsTemp.Size = new System.Drawing.Size(57, 23);
-            this.nudPlotsTemp.TabIndex = 11;
-            this.nudPlotsTemp.Value = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 82);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(113, 15);
-            this.label9.TabIndex = 10;
-            this.label9.Text = "Max plots per temp:";
             // 
             // nudPlotsPhase1
             // 
@@ -368,7 +349,7 @@ namespace PlotManager
             this.nudInterval.Size = new System.Drawing.Size(57, 23);
             this.nudInterval.TabIndex = 7;
             this.nudInterval.Value = new decimal(new int[] {
-            30,
+            120,
             0,
             0,
             0});
@@ -391,6 +372,7 @@ namespace PlotManager
             this.columnHeader4,
             this.columnHeader5,
             this.columnHeader6});
+            this.lstRunningPlots.FullRowSelect = true;
             this.lstRunningPlots.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lstRunningPlots.HideSelection = false;
             this.lstRunningPlots.Location = new System.Drawing.Point(12, 241);
@@ -542,7 +524,6 @@ namespace PlotManager
             ((System.ComponentModel.ISupportInitialize)(this.nudKSize)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPlotsTemp)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPlotsPhase1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudInterval)).EndInit();
             this.ResumeLayout(false);
@@ -551,8 +532,6 @@ namespace PlotManager
         }
 
         #endregion
-
-        private System.Windows.Forms.ListBox lstTemps;
         private System.Windows.Forms.ListBox lstOuts;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
@@ -569,8 +548,6 @@ namespace PlotManager
         private System.Windows.Forms.NumericUpDown nudBuffer;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.NumericUpDown nudPlotsTemp;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.NumericUpDown nudPlotsPhase1;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown nudInterval;
@@ -590,6 +567,9 @@ namespace PlotManager
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.ListView lstTempFolders;
+        private System.Windows.Forms.ColumnHeader columnHeader7;
+        private System.Windows.Forms.ColumnHeader columnHeader8;
     }
 }
 
